@@ -1,6 +1,8 @@
 {
-    "activeFile": "maps/map1.tmx",
+    "activeFile": "assets/tiles/base_tileset.tsx",
     "expandedProjectPaths": [
+        "assets",
+        "assets/tiles",
         ".",
         "maps"
     ],
@@ -13,8 +15,8 @@
             "scale": 0.25,
             "selectedLayer": 0,
             "viewCenter": {
-                "x": 2630,
-                "y": 1962
+                "x": 3570,
+                "y": 2790
             }
         }
     },
@@ -24,9 +26,10 @@
         "assets/tiles/base_tileset.tsx"
     ],
     "project": "project.tiled-project",
+    "property.type": "bool",
     "recentFiles": [
-        "assets/tiles/base_tileset.tsx",
-        "maps/map1.tmx"
+        "maps/map1.tmx",
+        "assets/tiles/base_tileset.tsx"
     ],
     "tileset.lastUsedFormat": "tsx",
     "tileset.tileSize": {
