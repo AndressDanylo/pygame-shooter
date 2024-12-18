@@ -3,14 +3,16 @@ import map
 
 # pygame setup
 pygame.init()
-screen = pygame.display.set_mode((1280, 720))
+display_width = pygame.display.Info().current_w
+display_height = pygame.display.Info().current_h
+screen = pygame.display.set_mode((display_width, display_height))
 clock = pygame.time.Clock()
 running = True
 
 # player
 # TODO player class
 player_surface = pygame.image.load('assets/Player.png').convert_alpha()
-player_rectangle = player_surface.get_rect(center = (1280//2, 720//2))
+player_rectangle = player_surface.get_rect(center = (display_width//2, display_height//2))
 player_x = 0
 player_y = 0
 player_speed = 10
