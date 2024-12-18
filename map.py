@@ -2,6 +2,7 @@ import pygame
 import pytmx
 import pytmx.util_pygame
 
+
 class Map:
     def __init__(self, map_file):
         self.map_file = map_file
