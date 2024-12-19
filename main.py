@@ -23,7 +23,7 @@ while running:
             running = False
     keys = pygame.key.get_pressed()
 
-    player.move(keys)
+    player.move(keys, game_map.get_collidable_tiles())
 
     # render
     screen.fill("gray")
