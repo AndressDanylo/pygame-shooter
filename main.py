@@ -27,9 +27,10 @@ while running:
 
     # render
     screen.fill("gray")
+    player.player_rotation(pygame.mouse.get_pos(), display_width//2, display_height//2)
     game_map.draw(screen, player.pos_x, player.pos_y)
     screen.blit(player.player_surf, player.player_rect)
-
+    pygame.draw.circle(screen, "red", pygame.mouse.get_pos(), 15)
     pygame.display.flip()
 
     clock.tick(60)

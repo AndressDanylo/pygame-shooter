@@ -1,4 +1,5 @@
 import pygame
+import math
 
 
 class Player:
@@ -9,6 +10,8 @@ class Player:
         self.sprite = sprite
         self.player_surf = pygame.image.load(sprite)#.convert_alpha() what?
         self.player_rect = self.player_surf.get_rect(center = (display_width//2, display_height//2))
+        self.display_width = display_width
+        self.display_height = display_height
     
     def move(self, keys, collidable_tiles):
         new_x, new_y = self.pos_x, self.pos_y
@@ -33,3 +36,13 @@ class Player:
             self.pos_x = new_x
         if not collision_y:
             self.pos_y = new_y
+    
+    def player_rotation(self, cursor_pos, player_pos_x, player_pos_y):
+        cursor_x, cursor_y = cursor_pos
+
+        dx, dy = cursor_x - player_pos_x, cursor_y - player_pos_y
+        degree = math.degrees(math.atan2(-dy, dx))
+        print(degree)
+        self.actual_surf = pygame.transform.rotate(self.player_surf, degree)
+        self.player_rect = self.actual_surf.get_rect(center=(self.display_width//2, self.display_height//2))
+
