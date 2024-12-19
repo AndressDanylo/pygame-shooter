@@ -14,7 +14,7 @@ running = True
 player = Player(0, 0, 10, 'assets/Player.png', display_width, display_height)
 
 # map
-game_map = map.Map("maps/map1.tmx")
+game_map = map.Map("maps/map1.tmx", display_width, display_height)
 
 while running:
     # poll for events
@@ -24,8 +24,6 @@ while running:
     keys = pygame.key.get_pressed()
 
     player.move(keys)
-    
-
 
     # render
     screen.fill("gray")
