@@ -8,8 +8,11 @@ class Player:
         self.pos_y = pos_y
         self.speed = speed
         self.sprite = sprite
+        # TODO make it obvious which surf and rect are visual and which ones are "real"
         self.player_surf = pygame.image.load(sprite)#.convert_alpha() what?
         self.player_rect = self.player_surf.get_rect(center = (display_width//2, display_height//2))
+        self.collision_rect = self.player_surf.get_rect(center = (display_width//2, display_height//2))
+        self.collision_rect.inflate_ip(-16, -16)
         self.display_width = display_width
         self.display_height = display_height
     
@@ -26,10 +29,10 @@ class Player:
         
         collision_x, collision_y = False, False
         for tile in collidable_tiles:
-            if not collision_x and self.player_rect.colliderect(tile.rect.move(new_x, self.pos_y)):
+            if not collision_x and self.collision_rect.colliderect(tile.rect.move(new_x, self.pos_y)):
                 collision_x = True
                 if collision_y == True: break
-            if not collision_y and self.player_rect.colliderect(tile.rect.move(self.pos_x, new_y)):
+            if not collision_y and self.collision_rect.colliderect(tile.rect.move(self.pos_x, new_y)):
                 collision_y = True
                 if collision_x == True: break
         if not collision_x:
