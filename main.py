@@ -6,12 +6,15 @@ from entities import Player
 pygame.init()
 display_width = pygame.display.Info().current_w
 display_height = pygame.display.Info().current_h
-screen = pygame.display.set_mode((display_width, display_height) )
+display_width = 800
+display_height = 400
+screen = pygame.display.set_mode((display_width, display_height))
+#screen = pygame.display.set_mode((display_width, display_height), pygame.FULLSCREEN)
 clock = pygame.time.Clock()
 running = True
 
 # player
-player = Player(0, 0, 10, 'assets/Player.png', display_width, display_height)
+player = Player(0, 0, 4, 'assets/Player.png', display_width, display_height)
 
 # map
 game_map = map.Map("maps/map1.tmx", display_width, display_height)
