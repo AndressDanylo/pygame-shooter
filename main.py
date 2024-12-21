@@ -1,23 +1,24 @@
 import pygame
 import map
 from entities import Player
+from weapon import Weapon
 
 # pygame setup
 pygame.init()
 display_width = pygame.display.Info().current_w
 display_height = pygame.display.Info().current_h
-display_width = 800
-display_height = 400
-screen = pygame.display.set_mode((display_width, display_height))
-#screen = pygame.display.set_mode((display_width, display_height), pygame.FULLSCREEN)
+screen = pygame.display.set_mode((display_width, display_height), pygame.FULLSCREEN)
 clock = pygame.time.Clock()
 running = True
 
 # player
-player = Player(0, 0, 4, 'assets/Player.png', display_width, display_height)
+player = Player(0, 0, 10, 'assets/Player.png', display_width, display_height)
 
 # map
 game_map = map.Map("maps/map1.tmx", display_width, display_height)
+
+# weapon
+weapon = Weapon(10, 1000, display_width, display_height)
 
 while running:
     # poll for events
@@ -34,6 +35,8 @@ while running:
     game_map.draw(screen, player.pos_x, player.pos_y)
     screen.blit(player.actual_surf, player.player_rect)
     pygame.draw.circle(screen, "red", pygame.mouse.get_pos(), 15)
+    weapon.shoot(screen)
+    
     #pygame.draw.rect(screen, "red", player.collision_rect, 1)
     
     pygame.display.flip()

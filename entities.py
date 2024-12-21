@@ -8,13 +8,13 @@ class Player:
         
         # TODO tweak stats
         self.velocity = pygame.Vector2()
-        self.acceleration = 0.1
+        self.acceleration = 0.0001
         self.friction = 0.8
         self.speed = speed
 
         self.sprite = sprite
         # TODO make it obvious which surf and rect are visual and which ones are "real"
-        self.player_surf = pygame.image.load(sprite)#.convert_alpha() what?
+        self.player_surf = pygame.image.load(sprite).convert_alpha()
         self.player_rect = self.player_surf.get_rect(center = (display_width//2, display_height//2))
         self.collision_rect = self.player_surf.get_rect(center = (display_width//2, display_height//2))
         self.collision_rect.inflate_ip(-16, -16)
