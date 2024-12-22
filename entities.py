@@ -17,7 +17,7 @@ class Player:
         self.player_surf = pygame.image.load(sprite).convert_alpha()
         self.player_rect = self.player_surf.get_rect(center = (display_width//2, display_height//2))
         self.collision_rect = self.player_surf.get_rect(center = (display_width//2, display_height//2))
-        self.collision_rect.inflate_ip(-16, -16)
+        self.collision_rect.inflate_ip(-32, -32)
         self.display_width = display_width
         self.display_height = display_height
     

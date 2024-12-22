@@ -7,6 +7,7 @@ from weapon import Weapon
 pygame.init()
 display_width = pygame.display.Info().current_w
 display_height = pygame.display.Info().current_h
+# TODO fix this? it gets strange resolution, but it does work well visually. only bugs out on my tuf laptop since it got two displays
 screen = pygame.display.set_mode((display_width, display_height), pygame.FULLSCREEN)
 clock = pygame.time.Clock()
 running = True
