@@ -6,21 +6,21 @@ import config
 
 # pygame setup
 pygame.init()
-display_width = pygame.display.Info().current_w
-display_height = pygame.display.Info().current_h
+config.SCREEN_WIDTH = pygame.display.Info().current_w
+config.SCREEN_HEIGHT = pygame.display.Info().current_h
 # TODO fix this? it gets strange resolution, but it does work well visually. only bugs out on my tuf laptop since it got two displays
-screen = pygame.display.set_mode((display_width, display_height), pygame.FULLSCREEN)
+screen = pygame.display.set_mode((config.SCREEN_WIDTH, config.SCREEN_HEIGHT), pygame.FULLSCREEN)
 clock = pygame.time.Clock()
 running = True
 
 # player
-player = Player(0, 0, 10, 'assets/Player.png', display_width, display_height)
+player = Player(0, 0, 10, 'assets/Player.png')
 
 # map
-game_map = map.Map("maps/map1.tmx", display_width, display_height)
+game_map = map.Map("maps/map1.tmx")
 
 # weapon
-weapon = Weapon(10, 1000, display_width, display_height)
+weapon = Weapon(10, 1000, config.SCREEN_WIDTH, config.SCREEN_HEIGHT)
 
 while running:
     # poll for events
@@ -33,7 +33,7 @@ while running:
 
     # render
     screen.fill("gray")
-    player.player_rotation(pygame.mouse.get_pos(), display_width//2, display_height//2)
+    player.player_rotation(pygame.mouse.get_pos(), config.SCREEN_WIDTH//2, config.SCREEN_HEIGHT//2)
     game_map.draw(screen, player.pos_x, player.pos_y)
     screen.blit(player.actual_surf, player.player_rect)
     pygame.draw.circle(screen, "red", pygame.mouse.get_pos(), 15)

@@ -5,13 +5,14 @@ import config
 
 
 class Map:
-    def __init__(self, map_file, screen_width, screen_height):
+    def __init__(self, map_file):
+        print(config.SCREEN_HEIGHT)
         self.map_file = map_file
         self.tiles = pygame.sprite.Group()
         self.collidable_tiles = pygame.sprite.Group()
 
-        self.screen_width = screen_width
-        self.screen_height = screen_height
+        self.screen_width = config.SCREEN_WIDTH
+        self.screen_height = config.SCREEN_HEIGHT
         self.pos_x = 0
         self.pos_y = 0
 

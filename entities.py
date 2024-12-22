@@ -1,8 +1,9 @@
 import pygame
 import math
+import config
 
 class Player:
-    def __init__(self, pos_x, pos_y, speed, sprite, display_width, display_height):
+    def __init__(self, pos_x, pos_y, speed, sprite):
         self.pos_x = pos_x
         self.pos_y = pos_y
         
@@ -12,14 +13,15 @@ class Player:
         self.friction = 0.8
         self.speed = speed
 
+        self.center_x = config.SCREEN_WIDTH // 2
+        self.center_y = config.SCREEN_HEIGHT // 2
+
         self.sprite = sprite
         # TODO make it obvious which surf and rect are visual and which ones are "real"
         self.player_surf = pygame.image.load(sprite).convert_alpha()
-        self.player_rect = self.player_surf.get_rect(center = (display_width//2, display_height//2))
-        self.collision_rect = self.player_surf.get_rect(center = (display_width//2, display_height//2))
+        self.player_rect = self.player_surf.get_rect(center = (self.center_x, self.center_y))
+        self.collision_rect = self.player_surf.get_rect(center = (self.center_x, self.center_y))
         self.collision_rect.inflate_ip(-32, -32)
-        self.display_width = display_width
-        self.display_height = display_height
     
     def move(self, keys, collidable_tiles):
         acceleration_vector = pygame.Vector2(0, 0)
@@ -65,5 +67,5 @@ class Player:
         dx, dy = cursor_x - player_pos_x, cursor_y - player_pos_y
         degree = math.degrees(math.atan2(-dy, dx))
         self.actual_surf = pygame.transform.rotate(self.player_surf, degree)
-        self.player_rect = self.actual_surf.get_rect(center=(self.display_width//2, self.display_height//2))
+        self.player_rect = self.actual_surf.get_rect(center=(self.center_x, self.center_y))
 
