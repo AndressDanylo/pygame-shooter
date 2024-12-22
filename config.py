@@ -1,0 +1,2 @@
+DEBUG = True
+FPS = 60

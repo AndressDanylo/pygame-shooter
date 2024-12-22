@@ -1,6 +1,7 @@
 import pygame
 import pytmx
 import pytmx.util_pygame
+import config
 
 
 class Map:
@@ -51,7 +52,9 @@ class Map:
 
     def draw(self, display, pos_x, pos_y):
         display_rect = display.get_rect()
-        #display_rect.inflate_ip(-64*4, -64*2)
+        if config.DEBUG:
+            display_rect.inflate_ip(-64*4, -64*2)
+
         for tile in self.tiles:
             tile_rect = tile.rect.move(pos_x, pos_y)
             if display_rect.colliderect(tile_rect):

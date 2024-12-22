@@ -2,6 +2,7 @@ import pygame
 import map
 from entities import Player
 from weapon import Weapon
+import config
 
 # pygame setup
 pygame.init()
@@ -37,11 +38,15 @@ while running:
     screen.blit(player.actual_surf, player.player_rect)
     pygame.draw.circle(screen, "red", pygame.mouse.get_pos(), 15)
     weapon.shoot(screen)
-    
-    #pygame.draw.rect(screen, "red", player.collision_rect, 1)
+
+    if config.DEBUG:
+        debug_surface = pygame.Surface(screen.get_size(), pygame.SRCALPHA)
+        pygame.draw.rect(debug_surface, pygame.Color(255, 0, 0, 50), player.player_rect, 1)
+        pygame.draw.rect(debug_surface, "red", player.collision_rect, 1)
+        screen.blit(debug_surface, debug_surface.get_rect())
     
     pygame.display.flip()
 
-    clock.tick(60)
+    clock.tick(config.FPS)
 
 pygame.quit()
