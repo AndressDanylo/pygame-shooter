@@ -38,6 +38,7 @@ while running:
     screen.blit(player.actual_surf, player.player_rect)
     pygame.draw.circle(screen, "red", pygame.mouse.get_pos(), 15)
     weapon.shoot(screen)
+    weapon.melee(player.actual_surf.get_rect(center=(config.SCREEN_WIDTH//2, config.SCREEN_HEIGHT//2)), screen)
 
     if config.DEBUG:
         debug_surface = pygame.Surface(screen.get_size(), pygame.SRCALPHA)
