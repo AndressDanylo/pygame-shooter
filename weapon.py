@@ -14,7 +14,11 @@ class Weapon:
         if pygame.mouse.get_pressed()[0]:
             cursor_position = Vector2(pygame.mouse.get_pos())
             player_position = Vector2((self.display_width//2, self.display_height//2))
-            shoot_direction = (cursor_position - player_position).normalize()
+            difference_vector = cursor_position - player_position
+            if difference_vector.length() > 0:
+                shoot_direction = difference_vector.normalize()
+            else:
+                shoot_direction = Vector2(0, 0)
             endpoint = player_position + shoot_direction * self.bullet_range
             pygame.draw.line(surface, "red", (self.display_width//2, self.display_height//2), endpoint)
 
