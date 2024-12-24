@@ -63,9 +63,8 @@ class Player:
     
     def player_rotation(self, cursor_pos, player_pos_x, player_pos_y):
         cursor_x, cursor_y = cursor_pos
-
         dx, dy = cursor_x - player_pos_x, cursor_y - player_pos_y
         degree = math.degrees(math.atan2(-dy, dx))
         self.actual_surf = pygame.transform.rotate(self.player_surf, degree)
         self.player_rect = self.actual_surf.get_rect(center=(self.center_x, self.center_y))
-
+        self.hitbox_angle = math.degrees(math.atan2(-dy, dx))
