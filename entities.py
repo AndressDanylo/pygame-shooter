@@ -27,13 +27,13 @@ class Player:
         acceleration_vector = pygame.Vector2(0, 0)
 
         # TODO change keybinds
-        if keys[pygame.K_LEFT]:
+        if keys[pygame.K_a]:
             acceleration_vector.x += self.acceleration
-        if keys[pygame.K_RIGHT]:
+        if keys[pygame.K_d]:
             acceleration_vector.x -= self.acceleration
-        if keys[pygame.K_UP]:
+        if keys[pygame.K_w]:
             acceleration_vector.y += self.acceleration
-        if keys[pygame.K_DOWN]:
+        if keys[pygame.K_s]:
             acceleration_vector.y -= self.acceleration
         
         if acceleration_vector.length() > 0:
