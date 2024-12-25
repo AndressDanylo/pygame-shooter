@@ -1,31 +1,42 @@
 import pygame
+import config
 from pygame.math import Vector2
 from math import radians, sin, cos
 
 
 class Weapon:
-    def __init__(self, damage, bullet_range, display_width, display_height):
+    def __init__(self, damage, bullet_range):
         self.damage = damage
         self.bullet_range = bullet_range
-        self.display_width = display_width
-        self.display_height = display_height
+        self.player_pos_x = config.SCREEN_WIDTH // 2
+        self.player_pos_y = config.SCREEN_HEIGHT // 2
+        self.player_position = (self.player_pos_x, self.player_pos_y)
+    
+    def get_shoot_direction(self):
+        cursor_position_vector = Vector2(pygame.mouse.get_pos())
+        self.player_position_vector = Vector2(self.player_position)
+        difference_vector = cursor_position_vector - self.player_position_vector
+        return difference_vector.normalize() if difference_vector.length() > 0 else Vector2(0, 0)
 
     def shoot(self, surface):
         if pygame.mouse.get_pressed()[0]:
-            cursor_position = Vector2(pygame.mouse.get_pos())
-            player_position = Vector2((self.display_width//2, self.display_height//2))
-            difference_vector = cursor_position - player_position
-            if difference_vector.length() > 0:
-                shoot_direction = difference_vector.normalize()
-            else:
-                shoot_direction = Vector2(0, 0)
-            endpoint = player_position + shoot_direction * self.bullet_range
-            pygame.draw.line(surface, "red", (self.display_width//2, self.display_height//2), endpoint)
-
-    def melee(self, hitbox_angle):
-        self.hitbox_surf = pygame.Surface((50, 50), pygame.SRCALPHA)
-        self.hitbox_surf.fill((255, 0, 0, 128))
+            shoot_direction = self.get_shoot_direction()
+            endpoint = self.player_position_vector + shoot_direction * self.bullet_range
+            pygame.draw.line(surface, "red", self.player_position, endpoint)
+    
+    def get_melee_hitbox(self, hitbox_angle, distance=30):
+        # get melee hitbox position and rotation
         rad_angle = radians(hitbox_angle)
-        self.hitbox_x = self.display_width//2 + 30 * cos(rad_angle)
-        self.hitbox_y = self.display_height//2 - 30 * sin(rad_angle)
-        self.rotated_hitbox = pygame.transform.rotate(self.hitbox_surf, hitbox_angle)
+        # distance variable represents distance between player and the hitbox
+        hitbox_x = self.player_pos_x + distance * cos(rad_angle)
+        hitbox_y = self.player_pos_y - distance * sin(rad_angle)
+        return Vector2(hitbox_x, hitbox_y)
+
+
+    def melee(self, surface, hitbox_angle):
+        if pygame.mouse.get_pressed()[0]:
+            self.hitbox_surf = pygame.Surface((50, 50), pygame.SRCALPHA)
+            self.hitbox_surf.fill((255, 0, 0, 128))
+            hitbox_position = self.get_melee_hitbox(hitbox_angle)
+            rotated_hitbox = pygame.transform.rotate(self.hitbox_surf, hitbox_angle)
+            surface.blit(rotated_hitbox, rotated_hitbox.get_rect(center=hitbox_position))
