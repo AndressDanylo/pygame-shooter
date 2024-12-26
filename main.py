@@ -44,7 +44,6 @@ while running:
         enemy.draw(screen, player.pos_x, player.pos_y)
 
     screen.blit(player.actual_surf, player.player_rect)
-    pygame.draw.circle(screen, "red", pygame.mouse.get_pos(), 15)
     weapon.shoot(screen)
     weapon.melee(screen, player.hitbox_angle)
 
@@ -61,6 +60,7 @@ while running:
         pygame.draw.rect(debug_surface, pygame.Color(255, 0, 0, 50), player.player_rect, 1)
         pygame.draw.rect(debug_surface, "red", player.collision_rect, 1)
         screen.blit(debug_surface, debug_surface.get_rect())
+        pygame.draw.circle(screen, "red", pygame.mouse.get_pos(), 15)
     
     pygame.display.flip()
 
