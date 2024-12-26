@@ -61,6 +61,9 @@ while running:
         pygame.draw.rect(debug_surface, "red", player.collision_rect, 1)
         screen.blit(debug_surface, debug_surface.get_rect())
         pygame.draw.circle(screen, "red", pygame.mouse.get_pos(), 15)
+        debug_font = pygame.font.Font(None, 50)
+        fps_text_surface = debug_font.render(f"FPS: {clock.get_fps() // 1}", True, "green")
+        screen.blit(fps_text_surface, (20, 20))
     
     pygame.display.flip()
 
