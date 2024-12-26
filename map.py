@@ -6,7 +6,6 @@ import config
 
 class Map:
     def __init__(self, map_file):
-        print(config.SCREEN_HEIGHT)
         self.map_file = map_file
         self.tiles = pygame.sprite.Group()
         self.collidable_tiles = pygame.sprite.Group()

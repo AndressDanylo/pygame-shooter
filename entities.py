@@ -68,3 +68,16 @@ class Player:
         self.actual_surf = pygame.transform.rotate(self.player_surf, degree)
         self.player_rect = self.actual_surf.get_rect(center=(self.center_x, self.center_y))
         self.hitbox_angle = math.degrees(math.atan2(-dy, dx))
+
+class Enemy(pygame.sprite.Sprite):
+    def __init__(self, pos_x, pos_y):
+        super().__init__()
+        self.pos_x = pos_x
+        self.pos_y = pos_y
+
+        self.surf = pygame.image.load('assets/Monster.png')
+        self.rect = self.surf.get_rect(center = (self.pos_x, self.pos_y))
+    
+    def draw(self, surf, pos_x, pos_y):
+        rect = self.rect.move(pos_x, pos_y)
+        surf.blit(self.surf, rect)
