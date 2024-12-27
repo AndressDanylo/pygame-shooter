@@ -1,6 +1,7 @@
 import pygame
 import pytmx
 import pytmx.util_pygame
+from pygame import Vector2
 import config
 
 
@@ -9,29 +10,23 @@ class Map:
         self.map_file = map_file
         self.tiles = pygame.sprite.Group()
         self.collidable_tiles = pygame.sprite.Group()
+        self.spawn_position = Vector2(0, 0)
 
-        self.screen_width = config.SCREEN_WIDTH
-        self.screen_height = config.SCREEN_HEIGHT
-        self.pos_x = 0
-        self.pos_y = 0
-
-        self.load_map()
+        self._load_map()
 
     # TODO maybe turn map into a singleton which can reload into diff maps
-    def load_map(self):
+    def _load_map(self):
         tmx_data = pytmx.util_pygame.load_pygame(self.map_file)
         self.tile_size = tmx_data.tilewidth
         self.width = tmx_data.width * tmx_data.tilewidth
         self.height = tmx_data.height * tmx_data.tileheight
-
-        self._set_spawn_position(tmx_data)
+        self._load_meta(tmx_data)
         self._load_layers(tmx_data)
     
-    def _set_spawn_position(self, tmx_data):
-         for object in tmx_data.get_layer_by_name("Meta Layer"):
+    def _load_meta(self, tmx_data):
+        for object in tmx_data.get_layer_by_name("Meta Layer"):
             if object.name == "spawn":
-                        self.pos_x = object.x - self.screen_width // 2
-                        self.pos_y = object.y - self.screen_height // 2
+                self.spawn_position = Vector2(object.x, object.y)
     
     def _load_layers(self, tmx_data):
         for layer in tmx_data.layers:
@@ -40,9 +35,10 @@ class Map:
                 for x, y, surface in layer.tiles():
                     gid = tmx_data.get_tile_gid(x, y, tmx_data.layers.index(layer))
                     props = tmx_data.get_tile_properties_by_gid(gid)
-                    pos_x = x * tmx_data.tilewidth - self.pos_x
-                    pos_y = y * tmx_data.tileheight - self.pos_y
-                    tile = Tile((pos_x, pos_y), surface, props, self.tiles)
+                    pos_x = x * tmx_data.tilewidth
+                    pos_y = y * tmx_data.tileheight
+                    tile = Tile((pos_x, pos_y), surface, props)
+                    self.tiles.add(tile)
                     if props.get("collidable"):
                         self.collidable_tiles.add(tile)
             if isinstance(layer, pytmx.TiledObjectGroup):
@@ -50,22 +46,16 @@ class Map:
                 for object in layer:
                     pass
 
-    def draw(self, display, pos_x, pos_y):
-        display_rect = display.get_rect()
-        if config.DEBUG:
-            display_rect.inflate_ip(-64*4, -64*2)
-
-        for tile in self.tiles:
-            tile_rect = tile.rect.move(pos_x, pos_y)
-            if display_rect.colliderect(tile_rect):
-                display.blit(tile.image, tile_rect)
-
+    def get_spawn_position(self):
+        return self.spawn_position
+    def get_tiles(self):
+        return self.tiles
     def get_collidable_tiles(self):
         return self.collidable_tiles
 
 class Tile(pygame.sprite.Sprite):
-    def __init__(self, pos, surface, props, groups):
-        super().__init__(groups)
-        self.image = surface
+    def __init__(self, pos, surf, props):
+        super().__init__()
+        self.image = surf
         self.rect = self.image.get_rect(topleft = pos)
         self.is_collidable = props.get("collidable", False)
