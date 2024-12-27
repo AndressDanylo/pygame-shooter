@@ -10,8 +10,6 @@ pygame.init()
 
 config.SCREEN_WIDTH = pygame.display.Info().current_w
 config.SCREEN_HEIGHT = pygame.display.Info().current_h
-config.SCREEN_WIDTH = 640*2
-config.SCREEN_HEIGHT = 360*2
 config.SCALE = min(config.SCREEN_WIDTH / config.VIRTUAL_WIDTH, config.SCREEN_HEIGHT / config.VIRTUAL_HEIGHT)
 
 screen_mode = 0 if config.DEBUG else pygame.FULLSCREEN

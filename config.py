@@ -1,4 +1,4 @@
-DEBUG = True
+DEBUG = False
 FPS = 60
 
 SCREEN_WIDTH = 0
