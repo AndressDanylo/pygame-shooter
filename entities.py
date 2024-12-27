@@ -47,40 +47,44 @@ class Player(pygame.sprite.Sprite):
         self.velocity = (self.velocity + self.direction) * self.FRICTION
         if self.velocity.length() > 0:
             self.velocity = self.velocity.clamp_magnitude(self.SPEED)
+        velocity = Vector2(round(self.velocity.x), round(self.velocity.y))
 
-        new_x = self.collision_rect.x + self.velocity.x
-        new_y = self.collision_rect.y + self.velocity.y
-        
         collision_x, collision_y = False, False
-        rect_x = self.collision_rect.move(self.velocity.x, 0)
-        rect_y = self.collision_rect.move(0, self.velocity.y)
+        rect_x = self.collision_rect.move(velocity.x, 0)
+        rect_y = self.collision_rect.move(0, velocity.y)
+        # previous fixed, not sure if needed
+        #rect_x.inflate_ip(0, -5)
+        #rect_y.inflate_ip(-5, 0)
         
         for tile in collidable_tiles:
             if not collision_x and rect_x.colliderect(tile.rect):
-                collision_x = True
+                collision_x = tile.rect
                 if collision_y: break
             if not collision_y and rect_y.colliderect(tile.rect):
-                collision_y = True
+                collision_y = tile.rect
                 if collision_x: break
-        
+
         if not collision_x:
-            pass
-            self.collision_rect.x = new_x
-            self.rect.centerx = self.collision_rect.centerx
+            self.collision_rect.x += velocity.x
+        else:
+            if collision_x.x - rect_x.x > 0:
+                self.collision_rect.right = collision_x.left
+            elif collision_x.x - rect_x.x < 0:
+                self.collision_rect.left = collision_x.right
         if not collision_y:
-            pass
-            self.collision_rect.y = new_y
-            self.rect.centery = self.collision_rect.centery
+            self.collision_rect.y += velocity.y
+        else:
+            if collision_y.y - rect_y.y > 0:
+                self.collision_rect.bottom = collision_y.top
+            elif collision_y.y - rect_y.y < 0:
+                self.collision_rect.top = collision_y.bottom
+        self.rect.center = self.collision_rect.center
 
 class Enemy(pygame.sprite.Sprite):
-    def __init__(self, pos_x, pos_y):
+    def __init__(self, spawn_position):
         super().__init__()
-        self.pos_x = pos_x
-        self.pos_y = pos_y
-
-        self.surf = pygame.image.load('assets/Monster.png')
-        self.rect = self.surf.get_rect(center = (self.pos_x, self.pos_y))
-    
-    def draw(self, surf, pos_x, pos_y):
-        rect = self.rect.move(pos_x, pos_y)
-        surf.blit(self.surf, rect)
+        self.image = pygame.image.load('assets/Monster.png')
+        self.rect = self.image.get_rect(center = spawn_position)
+        self.collision_rect = self.image.get_rect(center = spawn_position)
+        # TODO get rid of magic numbers VVVVVVV
+        self.collision_rect.inflate_ip(-32, -32)
