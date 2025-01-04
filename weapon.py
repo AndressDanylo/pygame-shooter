@@ -1,9 +1,28 @@
 import pygame
 import config
 from pygame.math import Vector2
+from util import raycast
 from math import radians, sin, cos
 
+class Ranged:
+    def __init__(self, parent):
+        self.parent = parent
 
+        self.DAMAGE = 5
+        self.RANGE = 999
+
+    def attack(self, targets):
+        start = self.parent.rect.center
+        direction = pygame.math.Vector2(cos(self.parent.angle), sin(self.parent.angle))
+        result = raycast(start, start + direction * self.RANGE, targets)
+
+        instance = result["instance"]
+        if hasattr(instance, "health"):
+            instance.take_damage(self.DAMAGE)
+        
+        return {"start": self.parent.rect.center, "end": result["position"]}
+
+# TODO rework this into melee
 class Weapon:
     def __init__(self, damage, bullet_range):
         self.damage = damage

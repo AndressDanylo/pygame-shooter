@@ -2,6 +2,7 @@ import pygame
 from pygame import Vector2
 import math
 import config
+from weapon import Ranged
 
 class Entity(pygame.sprite.Sprite):
     def __init__(self, spawn_position, image_path):
@@ -21,17 +22,15 @@ class Entity(pygame.sprite.Sprite):
         self.velocity = pygame.math.Vector2()
         self.direction = pygame.math.Vector2()
     
-    def take_damage(self, amount, group = None):
+    def take_damage(self, amount):
         self.health -= amount
-        if self.health <= 0:
-            if group:
-                group.remove(self)
-            del self
 
 class Player(Entity):
     def __init__(self, spawn_position):
         super().__init__(spawn_position, 'assets/Player.png')
 
+        self.ranged = Ranged(self)
+        
         self.SPEED = 19
         self.angle = 45
     
@@ -55,8 +54,7 @@ class Player(Entity):
         angle = math.degrees(math.atan2(dy, dx))
         self.image = pygame.transform.rotate(self.original_image, angle)
         self.rect = self.image.get_rect(center=(self.rect.centerx, self.rect.centery))
-        self.angle = angle
-        #self.hitbox_angle = math.degrees(math.atan2(-dy, dx))
+        self.angle = math.atan2(-dy, dx)
 
     def update(self, collidable_tiles):
         self._input()

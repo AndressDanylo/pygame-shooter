@@ -6,7 +6,6 @@ import random
 from map import Map
 from entities import Player
 from entities import Enemy
-from weapon import Weapon
 
 import lighting
 from lighting import StaticLight
@@ -31,8 +30,8 @@ running = True
 map = Map("maps/map1.tmx")
 player = Player(map.get_spawn_position())
 enemies = pygame.sprite.Group()
-#weapon = Weapon(10, 1000)
 lights = pygame.sprite.Group()
+lines = []
 
 w, h = screen.get_width(), screen.get_height()
 for i in range(1, 10):
@@ -43,24 +42,36 @@ lights.add(light)
 
 while running:
     spawn_monster = False
+    ranged_attack = False
 
     # events
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
+        elif event.type == pygame.MOUSEBUTTONDOWN:
+            if event.button == 1:
+                ranged_attack = True
         elif event.type == pygame.KEYDOWN:
             if event.key == pygame.K_ESCAPE:
                 running = False
-            elif event.key == pygame.K_z:
+            elif event.key == pygame.K_z: # debug stuff
                 spawn_monster = True
             elif event.key == pygame.K_m:
                 config.DEBUG = not config.DEBUG
 
+    # logic
     player.update(map.get_collidable_tiles().sprites() + enemies.sprites())
 
-    entities = enemies.sprites()
-    entities.append(player)
+    if ranged_attack:
+        line = player.ranged.attack(enemies.sprites() + map.get_collidable_tiles().sprites())
+        if line:
+            lines.append(line)
     
+    for enemy in enemies:
+        if enemy.health <= 0:
+            enemies.remove(enemy)
+            del enemy
+
     # render
     screen.fill("gray")
     offset = pygame.Vector2(-player.rect.x + config.SCREEN_WIDTH//2 - player.image.get_width()//2, -player.rect.y + config.SCREEN_HEIGHT//2 - player.image.get_height()//2)
@@ -71,18 +82,21 @@ while running:
             screen.blit(tile.image, tile.rect.topleft + offset)
     
     screen.blit(player.image, player.rect.topleft + offset)
-    
     for enemy in enemies:
         if camera.colliderect(enemy.rect):
             screen.blit(enemy.image, enemy.rect.topleft + offset)
-    
-    #weapon.shoot(screen)
-    #weapon.melee(screen, player.hitbox_angle)
+
+    entities = enemies.sprites()
+    entities.append(player)
 
     lighting_surf = pygame.Surface(screen.get_size(), pygame.SRCALPHA)
     lighting_surf.fill((0, 0, 0, 150))
     lights.update(lighting_surf, offset, entities)
     screen.blit(lighting_surf, (0, 0))
+
+    for line in lines:
+        pygame.draw.line(screen, (255, 255, 0), line["start"] + offset, line["end"] + offset, 1)
+    lines.clear()
 
     # vision_surf = pygame.Surface(screen.get_size(), pygame.SRCALPHA)
     # vision_surf.fill((0, 0, 0, 252))
