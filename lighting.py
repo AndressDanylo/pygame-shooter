@@ -1,6 +1,7 @@
 import pygame
 import math
 import config
+from util import raycast
 
 # def vision(surf, player, offset, tiles):
 #     points = []
@@ -93,8 +94,8 @@ class StaticLight(pygame.sprite.Sprite):
                 direction = pygame.math.Vector2(corner[0] - self.position[0], corner[1] - self.position[1])
                 if direction.length() > 0:
                     direction = direction.normalize()
-                point = _raycast(self.position, self.position + direction * self.radius, obstructions)
-                points.append(point)
+                result = raycast(self.position, self.position + direction * self.radius, obstructions)
+                points.append(result["position"])
         points.sort(key=lambda p: math.atan2(p[1] - self.position[1], p[0] - self.position[0]))
         return points
 
@@ -106,25 +107,10 @@ class StaticLight(pygame.sprite.Sprite):
                 direction = pygame.math.Vector2(corner[0] - self.position[0], corner[1] - self.position[1])
                 if direction.length() > 0:
                     direction = direction.normalize()
-                point = _raycast(self.position, self.position + direction * self.radius, entities)
-                points.append(point)
+                result = raycast(self.position, self.position + direction * self.radius, entities)
+                points.append(result["position"])
         points.sort(key=lambda p: math.atan2(p[1] - self.position[1], p[0] - self.position[0]))
         return points
-
-def _raycast(origin, end, obstructions):
-    point = end
-    min_distance = math.dist(origin, end)
-
-    for object in obstructions:
-        rect = getattr(object, "collision_rect", object.rect)
-        intersection = rect.clipline(origin, end)
-        if intersection:
-            intersection_point = intersection[0]
-            distance = math.dist(origin, intersection_point)
-            if distance < min_distance:
-                min_distance = distance
-                point = intersection_point
-    return point
 
 # def draw_lighting(player, walls, max_distance=300, cone_angle=45, offset=(0, 0)):
 #     screen = pygame.display.get_surface()
