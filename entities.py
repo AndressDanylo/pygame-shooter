@@ -12,6 +12,8 @@ class Player(pygame.sprite.Sprite):
         self.FRICTION = 0.8
         self.SPEED = 19
 
+        self.angle = 45
+
         self.image = pygame.image.load('assets\Player.png').convert_alpha()
         self.original_image = self.image
         self.rect = self.image.get_rect(center = spawn_position)
@@ -39,6 +41,7 @@ class Player(pygame.sprite.Sprite):
         angle = math.degrees(math.atan2(dy, dx))
         self.image = pygame.transform.rotate(self.original_image, angle)
         self.rect = self.image.get_rect(center=(self.rect.centerx, self.rect.centery))
+        self.angle = angle
         #self.hitbox_angle = math.degrees(math.atan2(-dy, dx))
 
     def update(self, collidable_tiles):

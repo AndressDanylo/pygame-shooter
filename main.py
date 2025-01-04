@@ -1,10 +1,15 @@
 import pygame
 from pygame import Vector2
+import config
+import random
+
 from map import Map
 from entities import Player
 from entities import Enemy
 from weapon import Weapon
-import config
+
+import lighting
+from lighting import StaticLight
 
 # pygame setup
 pygame.init()
@@ -27,6 +32,14 @@ map = Map("maps/map1.tmx")
 player = Player(map.get_spawn_position())
 enemies = pygame.sprite.Group()
 #weapon = Weapon(10, 1000)
+lights = pygame.sprite.Group()
+
+w, h = screen.get_width(), screen.get_height()
+for i in range(1, 10):
+    light = StaticLight(map.get_collidable_tiles(), (random.randint(-w, w), random.randint(-h, h))+map.get_spawn_position())
+    #lights.add(light)
+light = StaticLight(map.get_collidable_tiles(), map.get_spawn_position())
+lights.add(light)
 
 while running:
     spawn_monster = False
@@ -44,6 +57,9 @@ while running:
                 config.DEBUG = True
 
     player.update(map.get_collidable_tiles().sprites() + enemies.sprites())
+
+    entities = enemies.sprites()
+    entities.append(player)
     
     # render
     screen.fill("gray")
@@ -62,6 +78,16 @@ while running:
     
     #weapon.shoot(screen)
     #weapon.melee(screen, player.hitbox_angle)
+
+    lighting_surf = pygame.Surface(screen.get_size(), pygame.SRCALPHA)
+    lighting_surf.fill((0, 0, 0, 150))
+    lights.update(lighting_surf, offset, entities)
+    screen.blit(lighting_surf, (0, 0))
+
+    # vision_surf = pygame.Surface(screen.get_size(), pygame.SRCALPHA)
+    # vision_surf.fill((0, 0, 0, 252))
+    # lighting.vision(vision_surf, player, offset, map.get_collidable_tiles())
+    # screen.blit(vision_surf, (0, 0))
 
     if config.DEBUG:
         pygame.draw.rect(screen, "green", player.collision_rect.move(offset), 1)
