@@ -30,7 +30,7 @@ class Entity(pygame.sprite.Sprite):
 
 class Player(Entity):
     def __init__(self, spawn_position):
-        super().__init__(spawn_position, 'assets\Player.png')
+        super().__init__(spawn_position, 'assets/Player.png')
 
         self.SPEED = 19
         self.angle = 45

@@ -36,7 +36,7 @@ class StaticLight(pygame.sprite.Sprite):
         self.color = color
 
         self.rect = pygame.Rect(position.x-radius, position.y-radius, radius*2, radius*2)
-        self.image = pygame.image.load('assets\Light.png').convert_alpha()
+        self.image = pygame.image.load('assets/Light.png').convert_alpha()
         self.image = pygame.transform.scale(self.image, (self.rect.width, self.rect.height))
 
         self.obstructions = self._get_obstructions(obstructions)

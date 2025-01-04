@@ -54,7 +54,7 @@ while running:
             elif event.key == pygame.K_z:
                 spawn_monster = True
             elif event.key == pygame.K_m:
-                config.DEBUG = True
+                config.DEBUG = not config.DEBUG
 
     player.update(map.get_collidable_tiles().sprites() + enemies.sprites())
 
