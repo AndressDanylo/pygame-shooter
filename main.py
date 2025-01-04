@@ -2,13 +2,12 @@ import pygame
 from pygame import Vector2
 import config
 import random
+from math import cos, sin
 
 from map import Map
 from entities import Player
 from entities import Enemy
-
-import lighting
-from lighting import StaticLight
+from lighting import StaticLight, FlashLight
 
 # pygame setup
 pygame.init()
@@ -33,16 +32,19 @@ enemies = pygame.sprite.Group()
 lights = pygame.sprite.Group()
 lines = []
 
-w, h = screen.get_width(), screen.get_height()
-for i in range(1, 10):
-    light = StaticLight(map.get_collidable_tiles(), (random.randint(-w, w), random.randint(-h, h))+map.get_spawn_position())
-    #lights.add(light)
-light = StaticLight(map.get_collidable_tiles(), map.get_spawn_position())
-lights.add(light)
+# w, h = screen.get_width(), screen.get_height()
+# for i in range(1, 10):
+#     light = StaticLight(map.get_collidable_tiles(), (random.randint(-w, w), random.randint(-h, h))+map.get_spawn_position())
+#     #lights.add(light)
+# light = StaticLight(map.get_collidable_tiles(), map.get_spawn_position())
+# lights.add(light)
+
+#flashlight = FlashLight(player, map.get_collidable_tiles(), map.get_spawn_position(), 400)
 
 while running:
     spawn_monster = False
     ranged_attack = False
+    melee_attack = False
 
     # events
     for event in pygame.event.get():
@@ -54,6 +56,8 @@ while running:
         elif event.type == pygame.KEYDOWN:
             if event.key == pygame.K_ESCAPE:
                 running = False
+            elif event.key == pygame.K_SPACE:
+                melee_attack = True
             elif event.key == pygame.K_z: # debug stuff
                 spawn_monster = True
             elif event.key == pygame.K_m:
@@ -66,6 +70,8 @@ while running:
         line = player.ranged.attack(enemies.sprites() + map.get_collidable_tiles().sprites())
         if line:
             lines.append(line)
+    if melee_attack:
+        player.melee.attack(enemies)
     
     for enemy in enemies:
         if enemy.health <= 0:
@@ -89,10 +95,13 @@ while running:
     entities = enemies.sprites()
     entities.append(player)
 
-    lighting_surf = pygame.Surface(screen.get_size(), pygame.SRCALPHA)
-    lighting_surf.fill((0, 0, 0, 150))
-    lights.update(lighting_surf, offset, entities)
-    screen.blit(lighting_surf, (0, 0))
+    # flashlight.move()
+
+    # lighting_surf = pygame.Surface(screen.get_size(), pygame.SRCALPHA)
+    # lighting_surf.fill((0, 0, 0, 150))
+    # lights.update(lighting_surf, offset)
+    # flashlight.update(lighting_surf, offset)
+    # screen.blit(lighting_surf, (0, 0))
 
     for line in lines:
         pygame.draw.line(screen, (255, 255, 0), line["start"] + offset, line["end"] + offset, 1)
@@ -106,6 +115,14 @@ while running:
     if config.DEBUG:
         pygame.draw.rect(screen, "green", player.collision_rect.move(offset), 1)
         pygame.draw.rect(screen, "green", player.rect.move(offset), 1)
+
+        pygame.draw.circle(screen, (255, 0, 255), player.rect.center + offset, player.melee.REACH, 1)
+        direction = Vector2(cos(player.angle), sin(player.angle))
+        left_direction = direction.rotate(-player.melee.RANGE / 2)
+        right_direction = direction.rotate(player.melee.RANGE / 2)
+        center = player.rect.center + offset
+        pygame.draw.line(screen, (255, 0, 255), center, center + left_direction * player.melee.REACH, 1)
+        pygame.draw.line(screen, (255, 0, 255), center, center + right_direction * player.melee.REACH, 1)
 
         pygame.draw.line(screen, "black", pygame.mouse.get_pos(), (config.SCREEN_WIDTH//2, config.SCREEN_HEIGHT//2))
 
@@ -123,7 +140,7 @@ while running:
         fps_text_surface = debug_font.render(f"FPS: {clock.get_fps() // 1}", True, "green")
         screen.blit(fps_text_surface, (20, 20))
     font = pygame.font.SysFont('Roboto', 25)
-    text_surf = font.render(f"WASD - Move; ESC - Leave; M - Debug; Z - Spawn Monster (in debug)", True, "black")
+    text_surf = font.render(f"WASD - Move; M1 - Shoot; Space - Melee; ESC - Leave; M - Debug; Z - Spawn Monster (in debug)", True, "black")
     text_rect = text_surf.get_rect()
     text_rect.top = 5
     text_rect.right = config.SCREEN_WIDTH - 5

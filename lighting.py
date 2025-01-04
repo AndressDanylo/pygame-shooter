@@ -1,83 +1,39 @@
 import pygame
 import math
 import config
-from util import raycast
+from pygame.math import Vector2
+from util import raycast, normalize_angle
+from math import radians, sin, cos
 
-# def vision(surf, player, offset, tiles):
-#     points = []
-#     obstructions = []
-#     rect = surf.get_rect().move(-offset)
-#     for tile in tiles:
-#         if rect.colliderect(tile.rect):
-#             obstructions.append(tile)
-#             pygame.draw.rect(surf, "red", tile.rect.move(offset))
-    
-#     for obstruction in obstructions:
-#         end_point = cast_ray2(player.rect.center, obstruction.rect.topleft, obstructions)
-#         points.append(end_point+offset)
-#         end_point = cast_ray2(player.rect.center, obstruction.rect.topright, obstructions)
-#         points.append(end_point+offset)
-#         end_point = cast_ray2(player.rect.center, obstruction.rect.bottomright, obstructions)
-#         points.append(end_point+offset)
-#         end_point = cast_ray2(player.rect.center, obstruction.rect.bottomleft, obstructions)
-#         points.append(end_point+offset)
-    
-#     for point in points:
-#         pygame.draw.circle(surf, (255, 255, 255, 255), point, 2)
-
-#     pygame.draw.polygon(surf, (0, 0, 0, 0), points)
-
-# TODO made static points calculation not used, since idk how i could generate player shadows accurately
-# I think i'll make only flashlight generate lights that arent pre made, cuz im not experienced enough to make this very optimised
-class StaticLight(pygame.sprite.Sprite):
-    def __init__(self, obstructions, position, radius = 200, color = (255, 255, 200, 55)):
+class Light(pygame.sprite.Sprite):
+    def __init__(self, position, radius=200, color=(255, 255, 200, 55)):
         super().__init__()
-        self.position = position
+        self.position = pygame.math.Vector2(position)
         self.radius = radius
         self.color = color
 
-        self.rect = pygame.Rect(position.x-radius, position.y-radius, radius*2, radius*2)
+        self.rect = pygame.Rect(position[0] - radius, position[1] - radius, radius * 2, radius * 2)
         self.image = pygame.image.load('assets/Light.png').convert_alpha()
         self.image = pygame.transform.scale(self.image, (self.rect.width, self.rect.height))
 
-        self.obstructions = self._get_obstructions(obstructions)
-        self.points = self._get_points(self.obstructions)
-
         self.light_surface = pygame.Surface((self.rect.width, self.rect.height), pygame.SRCALPHA)
         self.shadow_surface = pygame.Surface((self.rect.width, self.rect.height), pygame.SRCALPHA)
-    
-    def update(self, surf, offset, entities):
-        if config.DEBUG:
-            for object in self.obstructions:
-                pygame.draw.rect(surf, (255, 0, 255, 50), object.rect.move(offset), 0)
-            pygame.draw.circle(surf, (255, 0, 255, 150), self.position + offset, self.radius, 1)
-            for point in self.points:
-                pygame.draw.circle(surf, (255, 255, 255, 255), point + offset, 3)
-        
-        # points = []
-        global_points = []
-        # for point in self.points:
-        #     points.append(point - self.position + (self.rect.width//2, self.rect.height//2))
-        #     global_points.append(point + offset)
-        points = []
-        for point in self._get_dynamic_points(entities + self.obstructions):
-            points.append(point - self.position + (self.rect.width//2, self.rect.height//2))
-            global_points.append(point + offset)
-            
+
+    def _update_light(self, points):
         self.light_surface.fill((0, 0, 0, 0))
         self.shadow_surface.fill((0, 0, 0, 0))
-
         self.light_surface.blit(self.image, (0, 0))
+
         if len(points) > 2:
             pygame.draw.polygon(self.shadow_surface, (255, 255, 255, 255), points)
             self.light_surface.blit(self.shadow_surface, (0, 0), special_flags=pygame.BLEND_RGBA_MIN)
-        # if len(dynamic_points) > 2:
-        #     self.shadow_surface.fill((0, 0, 0, 0))
-        #     pygame.draw.polygon(self.shadow_surface, (255, 255, 255, 255), dynamic_points)
-        #     self.light_surface.blit(self.shadow_surface, (0, 0), special_flags=pygame.BLEND_RGBA_MIN)
 
-        pygame.draw.polygon(surf, (0, 0, 0, 0), global_points)
-        surf.blit(self.light_surface, self.rect.topleft + offset)
+    def _draw_debug(self, surf, offset, points, obstructions):
+        for object in obstructions:
+            pygame.draw.rect(surf, (255, 0, 255, 50), object.rect.move(offset), 0)
+        pygame.draw.circle(surf, (255, 0, 255, 150), self.position + offset, self.radius, 1)
+        for point in points:
+            pygame.draw.circle(surf, (255, 255, 255, 255), point + offset, 3)
     
     def _get_obstructions(self, obstructions):
         result = []
@@ -99,38 +55,102 @@ class StaticLight(pygame.sprite.Sprite):
         points.sort(key=lambda p: math.atan2(p[1] - self.position[1], p[0] - self.position[0]))
         return points
 
-    def _get_dynamic_points(self, entities):
+class StaticLight(Light):
+    def __init__(self, obstructions, position, radius = 200, color = (255, 255, 200, 55)):
+        super().__init__(position, radius, color)
+
+        self.obstructions_og = obstructions
+        self.obstructions = self._get_obstructions(obstructions)
+        self.points = self._get_points(self.obstructions)
+    
+    def update(self, surf, offset):
+        if config.DEBUG:
+            self._draw_debug(surf, offset, self.points, self.obstructions)
+        
         points = []
-        for object in entities:
-            rect = getattr(object, "collision_rect", object.rect)
-            for corner in (rect.topright, rect.topleft, rect.bottomright, rect.bottomleft):
-                direction = pygame.math.Vector2(corner[0] - self.position[0], corner[1] - self.position[1])
-                if direction.length() > 0:
-                    direction = direction.normalize()
-                result = raycast(self.position, self.position + direction * self.radius, entities)
-                points.append(result["position"])
-        points.sort(key=lambda p: math.atan2(p[1] - self.position[1], p[0] - self.position[0]))
-        return points
+        global_points = []
+        for point in self.points:
+            points.append(point - self.position + (self.rect.width//2, self.rect.height//2))
+            global_points.append(point + offset)
+        
+        self._update_light(points)
+        pygame.draw.polygon(surf, (0, 0, 0, 0), global_points)
+        surf.blit(self.light_surface, self.rect.topleft + offset)
 
-# def draw_lighting(player, walls, max_distance=300, cone_angle=45, offset=(0, 0)):
-#     screen = pygame.display.get_surface()
+class FlashLight(Light):
+    def __init__(self, parent, obstructions, position, radius = 200, color = (255, 255, 200, 55)):
+        super().__init__(position, radius, color)
 
-#     # Flashlight parameters
-#     num_rays = 25
-#     angle_step = math.radians(cone_angle) / num_rays
-#     base_angle = math.radians(player.angle) + math.radians(cone_angle) / 2
+        self.angle = 90
+        self.direction = Vector2(1, 0)
 
-#     light_points = [player.rect.center+offset]  # Start point of the cone
+        self.parent = parent
+        self.obstructions_og = obstructions
+        self.obstructions = self._get_obstructions(obstructions)
+        self.points = self._get_points(self.obstructions)
 
-#     # Cast rays
-#     for i in range(num_rays + 1):
-#         ray_angle = -base_angle + i * angle_step
-#         end_point = cast_ray(player.rect.center, ray_angle, walls, max_distance)
-#         light_points.append(end_point+offset)
+    def _get_obstructions(self, obstructions):
+        relevant_obstructions = []
+        for obj in obstructions:
+            obj_center = pygame.math.Vector2(obj.rect.center)
+            direction_to_obj = obj_center - self.position
+            if direction_to_obj.length() > self.radius:
+                continue
 
-#     if len(light_points) > 2:
-#         pygame.draw.polygon(surf, (0, 0, 0, 0), light_points)
-#     pygame.draw.circle(surf, (0, 0, 0, 0), player.rect.center+offset, 35)
+            angle_to_obj = normalize_angle(self.direction.angle_to(direction_to_obj))
 
-#     # # Blend the light surface with the display
-#     
+            if abs(angle_to_obj) <= self.angle / 2:
+                relevant_obstructions.append(obj)
+
+        return relevant_obstructions
+
+    def update(self, surf, offset):
+        if config.DEBUG:
+            self._draw_debug(surf, offset, self.points, self.obstructions)
+
+        points = []
+        global_points = []
+        for point in self.points:
+            direction_to_point = Vector2(point - self.position).normalize()
+            angle_to_point = self.direction.angle_to(direction_to_point)
+            if abs(angle_to_point) <= self.angle / 2:
+                points.append(point - self.position + (self.rect.width // 2, self.rect.height // 2))
+                global_points.append(point + offset)
+        
+        center_point = self.position
+        points.insert(0, center_point - self.position + (self.rect.width // 2, self.rect.height // 2))
+        global_points.insert(0, center_point + offset)
+
+        self._update_light(points)
+        pygame.draw.polygon(surf, (0, 0, 0, 0), global_points)
+        surf.blit(self.light_surface, self.rect.topleft + offset)
+
+    def move(self):
+        position = self.parent.rect.center
+        self.position = Vector2(position[0], position[1])
+        self.rect.center = position
+        self.direction = Vector2(cos(self.parent.angle), sin(self.parent.angle))
+        self.obstructions = self._get_obstructions(self.obstructions_og)
+        self.points = self._get_points(self.obstructions)
+    
+    def _draw_debug(self, surf, offset, points, obstructions):
+        for obj in obstructions:
+            pygame.draw.rect(surf, (255, 0, 255, 50), obj.rect.move(offset), 0)
+        pygame.draw.circle(surf, (255, 0, 255, 150), self.position + offset, self.radius, 1)
+        for point in points:
+            pygame.draw.circle(surf, (255, 255, 255, 255), point + offset, 3)
+
+        # Draw flashlight cone
+        end_left = self.position + self.direction.rotate(-self.angle / 2) * self.radius
+        end_right = self.position + self.direction.rotate(self.angle / 2) * self.radius
+        pygame.draw.line(surf, (0, 255, 0), self.position + offset, end_left + offset, 1)
+        pygame.draw.line(surf, (0, 255, 0), self.position + offset, end_right + offset, 1)
+
+    def _update_light(self, points):
+        self.light_surface.fill((0, 0, 0, 0))
+        self.shadow_surface.fill((0, 0, 0, 0))
+
+        self.light_surface.blit(self.image, (0, 0))
+        if len(points) > 2:
+            pygame.draw.polygon(self.shadow_surface, (255, 255, 255, 255), points)
+            self.light_surface.blit(self.shadow_surface, (0, 0), special_flags=pygame.BLEND_RGBA_MIN)

@@ -16,3 +16,10 @@ def raycast(origin, end, obstructions):
                 point = intersection_point
                 instance = object
     return {"instance": instance, "position": point}
+
+def normalize_angle(angle):
+        while angle > 180:
+            angle -= 360
+        while angle < -180:
+            angle += 360
+        return angle

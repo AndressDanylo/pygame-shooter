@@ -2,7 +2,7 @@ import pygame
 from pygame import Vector2
 import math
 import config
-from weapon import Ranged
+from weapon import Ranged, Melee
 
 class Entity(pygame.sprite.Sprite):
     def __init__(self, spawn_position, image_path):
@@ -30,7 +30,8 @@ class Player(Entity):
         super().__init__(spawn_position, 'assets/Player.png')
 
         self.ranged = Ranged(self)
-        
+        self.melee = Melee(self)
+
         self.SPEED = 19
         self.angle = 45
     
