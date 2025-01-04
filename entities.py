@@ -3,23 +3,37 @@ from pygame import Vector2
 import math
 import config
 
-class Player(pygame.sprite.Sprite):
-    def __init__(self, spawn_position):
+class Entity(pygame.sprite.Sprite):
+    def __init__(self, spawn_position, image_path):
         super().__init__()
 
-        self.direction = Vector2()
-        self.velocity = Vector2()
-        self.FRICTION = 0.8
-        self.SPEED = 19
-
-        self.angle = 45
-
-        self.image = pygame.image.load('assets\Player.png').convert_alpha()
+        self.image = pygame.image.load(image_path).convert_alpha()
         self.original_image = self.image
-        self.rect = self.image.get_rect(center = spawn_position)
+        self.rect = self.image.get_rect(center=spawn_position)
         self.collision_rect = self.image.get_rect(center = spawn_position)
         # TODO get rid of magic numbers VVVVVVV
         self.collision_rect.inflate_ip(-32, -32)
+
+        self.health = 10
+        self.SPEED = 10
+
+        self.FRICTION = 0.8
+        self.velocity = pygame.math.Vector2()
+        self.direction = pygame.math.Vector2()
+    
+    def take_damage(self, amount, group = None):
+        self.health -= amount
+        if self.health <= 0:
+            if group:
+                group.remove(self)
+            del self
+
+class Player(Entity):
+    def __init__(self, spawn_position):
+        super().__init__(spawn_position, 'assets\Player.png')
+
+        self.SPEED = 19
+        self.angle = 45
     
     def _input(self):
         self.direction = Vector2(0, 0)
@@ -83,11 +97,6 @@ class Player(pygame.sprite.Sprite):
                 self.collision_rect.top = collision_y.bottom
         self.rect.center = self.collision_rect.center
 
-class Enemy(pygame.sprite.Sprite):
+class Enemy(Entity):
     def __init__(self, spawn_position):
-        super().__init__()
-        self.image = pygame.image.load('assets/Monster.png')
-        self.rect = self.image.get_rect(center = spawn_position)
-        self.collision_rect = self.image.get_rect(center = spawn_position)
-        # TODO get rid of magic numbers VVVVVVV
-        self.collision_rect.inflate_ip(-32, -32)
+        super().__init__(spawn_position, 'assets/Monster.png')
