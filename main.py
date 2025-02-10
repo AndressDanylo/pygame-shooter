@@ -26,11 +26,11 @@ clock = pygame.time.Clock()
 running = True
 
 # objects
-map = Map("maps/map1.tmx")
-player = Player(map.get_spawn_position())
 enemies = pygame.sprite.Group()
 lights = pygame.sprite.Group()
 lines = []
+map = Map("maps/map1.tmx", enemies)
+player = Player(map.get_spawn_position())
 
 # w, h = screen.get_width(), screen.get_height()
 # for i in range(1, 10):
