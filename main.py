@@ -5,8 +5,7 @@ import random
 from math import cos, sin
 
 from map import Map
-from entities import Player
-from entities import Enemy
+from entities import Player, Enemy
 from lighting import StaticLight, FlashLight
 
 # pygame setup
@@ -135,10 +134,14 @@ while running:
         for enemy in enemies:
             pygame.draw.rect(screen, "red", enemy.rect.move(offset), 1)
             pygame.draw.rect(screen, "red", enemy.collision_rect.move(offset), 1)
+            # TODO: change the onscreen enemies handling
+            if camera.colliderect(enemy.rect):
+                enemy.update((player.rect.x, player.rect.y), map.get_collidable_tiles().sprites())
         
         debug_font = pygame.font.Font(None, 50)
         fps_text_surface = debug_font.render(f"FPS: {clock.get_fps() // 1}", True, "green")
         screen.blit(fps_text_surface, (20, 20))
+
     font = pygame.font.SysFont('Roboto', 25)
     text_surf = font.render(f"WASD - Move; M1 - Shoot; Space - Melee; ESC - Leave; M - Debug; Z - Spawn Monster (in debug)", True, "black")
     text_rect = text_surf.get_rect()

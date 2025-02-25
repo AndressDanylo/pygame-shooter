@@ -3,6 +3,7 @@ from pygame import Vector2
 import math
 import config
 from weapon import Ranged, Melee
+from util import raycast
 
 class Entity(pygame.sprite.Sprite):
     def __init__(self, spawn_position, image_path):
@@ -24,6 +25,14 @@ class Entity(pygame.sprite.Sprite):
     
     def take_damage(self, amount):
         self.health -= amount
+    
+    def rotate(self, image, position, target_position):
+        dx, dy = target_position[0] - position[0], -(target_position[1] - position[1])
+        angle = math.degrees(math.atan2(dy, dx))
+        self.image = pygame.transform.rotate(image, angle)
+        self.rect = self.image.get_rect(center=(self.rect.centerx, self.rect.centery))
+        self.angle = math.atan2(-dy, dx)
+        
 
 class Player(Entity):
     def __init__(self, spawn_position):
@@ -49,17 +58,14 @@ class Player(Entity):
         if self.direction.length() > 0:
             self.direction = self.direction.normalize()
 
-    def _rotate(self):
-        cursor_x, cursor_y = pygame.mouse.get_pos()
-        dx, dy = cursor_x - config.SCREEN_WIDTH//2, -(cursor_y - config.SCREEN_HEIGHT//2)
-        angle = math.degrees(math.atan2(dy, dx))
-        self.image = pygame.transform.rotate(self.original_image, angle)
-        self.rect = self.image.get_rect(center=(self.rect.centerx, self.rect.centery))
-        self.angle = math.atan2(-dy, dx)
+    # def _rotate(self):
+    #     # TODO remove this function
+    #     cursor_x, cursor_y = pygame.mouse.get_pos()
+    #     dx, dy = cursor_x - config.SCREEN_WIDTH//2, -(cursor_y - config.SCREEN_HEIGHT//2)
 
     def update(self, collidable_tiles):
         self._input()
-        self._rotate()
+        self.rotate(self.original_image, (config.SCREEN_WIDTH//2, config.SCREEN_HEIGHT//2), pygame.mouse.get_pos())
         self.velocity = (self.velocity + self.direction) * self.FRICTION
         if self.velocity.length() > 0:
             self.velocity = self.velocity.clamp_magnitude(self.SPEED)
@@ -99,3 +105,7 @@ class Player(Entity):
 class Enemy(Entity):
     def __init__(self, spawn_position):
         super().__init__(spawn_position, 'assets/Monster.png')
+        self.position = spawn_position
+    
+    def update(self, player_position, walls):
+            self.rotate(self.original_image, self.position, player_position)
