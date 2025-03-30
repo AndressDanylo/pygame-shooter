@@ -32,7 +32,49 @@ class Entity(pygame.sprite.Sprite):
         self.image = pygame.transform.rotate(image, angle)
         self.rect = self.image.get_rect(center=(self.rect.centerx, self.rect.centery))
         self.angle = math.atan2(-dy, dx)
+
+    def move(self, position: Vector2, walls):
+        """Move entity to a position """ 
+        self.direction = Vector2(position) - Vector2(self.rect.center)
+
+        if self.direction.length() > 0:
+           self.direction = self.direction.normalize()
+
+        self.velocity = (self.velocity + self.direction) * self.FRICTION
         
+        if self.velocity.length() > 0:
+            self.velocity = self.velocity.clamp_magnitude(self.SPEED)
+        velocity = Vector2(round(self.velocity.x), round(self.velocity.y))
+
+        collision_x, collision_y = False, False
+        rect_x = self.collision_rect.move(velocity.x, 0)
+        rect_y = self.collision_rect.move(0, velocity.y)
+        
+        for wall in walls:
+            if not collision_x and rect_x.colliderect(wall.rect):
+                collision_x = wall.rect
+                if collision_y: break
+            if not collision_y and rect_y.colliderect(wall.rect):
+                collision_y = wall.rect
+                if collision_x: break
+
+        if not collision_x:
+            self.collision_rect.x += velocity.x
+        else:
+            if collision_x.x - rect_x.x > 0:
+                self.collision_rect.right = collision_x.left
+            elif collision_x.x - rect_x.x < 0:
+                self.collision_rect.left = collision_x.right
+        if not collision_y:
+            self.collision_rect.y += velocity.y
+        else:
+            if collision_y.y - rect_y.y > 0:
+                self.collision_rect.bottom = collision_y.top
+            elif collision_y.y - rect_y.y < 0:
+                self.collision_rect.top = collision_y.bottom
+        self.rect.center = self.collision_rect.center
+
+
 
 class Player(Entity):
     def __init__(self, spawn_position):
@@ -58,12 +100,7 @@ class Player(Entity):
         if self.direction.length() > 0:
             self.direction = self.direction.normalize()
 
-    # def _rotate(self):
-    #     # TODO remove this function
-    #     cursor_x, cursor_y = pygame.mouse.get_pos()
-    #     dx, dy = cursor_x - config.SCREEN_WIDTH//2, -(cursor_y - config.SCREEN_HEIGHT//2)
-
-    def update(self, collidable_tiles):
+    def update(self, walls):
         self._input()
         self.rotate(self.original_image, (config.SCREEN_WIDTH//2, config.SCREEN_HEIGHT//2), pygame.mouse.get_pos())
         self.velocity = (self.velocity + self.direction) * self.FRICTION
@@ -78,12 +115,12 @@ class Player(Entity):
         #rect_x.inflate_ip(0, -5)
         #rect_y.inflate_ip(-5, 0)
         
-        for tile in collidable_tiles:
-            if not collision_x and rect_x.colliderect(tile.rect):
-                collision_x = tile.rect
+        for wall in walls:
+            if not collision_x and rect_x.colliderect(wall.rect):
+                collision_x = wall.rect
                 if collision_y: break
-            if not collision_y and rect_y.colliderect(tile.rect):
-                collision_y = tile.rect
+            if not collision_y and rect_y.colliderect(wall.rect):
+                collision_y = wall.rect
                 if collision_x: break
 
         if not collision_x:
@@ -108,4 +145,8 @@ class Enemy(Entity):
         self.position = spawn_position
     
     def update(self, player_position, walls):
+        """React if the player is in vision"""
+        if not raycast(self.position, player_position, walls)["instance"]:
             self.rotate(self.original_image, self.position, player_position)
+            self.move(player_position, walls)
+
