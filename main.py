@@ -123,8 +123,6 @@ while running:
         pygame.draw.line(screen, (255, 0, 255), center, center + left_direction * player.melee.REACH, 1)
         pygame.draw.line(screen, (255, 0, 255), center, center + right_direction * player.melee.REACH, 1)
 
-        pygame.draw.line(screen, "black", pygame.mouse.get_pos(), (config.SCREEN_WIDTH//2, config.SCREEN_HEIGHT//2))
-
         if spawn_monster:
             position = pygame.mouse.get_pos()
             position = Vector2(position[0], position[1])
@@ -136,7 +134,7 @@ while running:
             pygame.draw.rect(screen, "red", enemy.collision_rect.move(offset), 1)
             # TODO: change the onscreen enemies handling
             if camera.colliderect(enemy.rect):
-                enemy.update((player.rect.x, player.rect.y), map.get_collidable_tiles().sprites() + [player])
+                enemy.update(player, map.get_collidable_tiles().sprites() + [player], offset)
         
         debug_font = pygame.font.Font(None, 50)
         fps_text_surface = debug_font.render(f"FPS: {clock.get_fps() // 1}", True, "green")
