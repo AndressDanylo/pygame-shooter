@@ -136,7 +136,7 @@ while running:
             pygame.draw.rect(screen, "red", enemy.collision_rect.move(offset), 1)
             # TODO: change the onscreen enemies handling
             if camera.colliderect(enemy.rect):
-                enemy.update((player.rect.x, player.rect.y), map.get_collidable_tiles().sprites())
+                enemy.update((player.rect.x, player.rect.y), map.get_collidable_tiles().sprites() + [player])
         
         debug_font = pygame.font.Font(None, 50)
         fps_text_surface = debug_font.render(f"FPS: {clock.get_fps() // 1}", True, "green")

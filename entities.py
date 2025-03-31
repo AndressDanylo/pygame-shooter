@@ -51,11 +51,12 @@ class Entity(pygame.sprite.Sprite):
         rect_y = self.collision_rect.move(0, velocity.y)
         
         for wall in walls:
-            if not collision_x and rect_x.colliderect(wall.rect):
-                collision_x = wall.rect
+            rect = getattr(wall, "collision_rect", wall.rect)
+            if not collision_x and rect_x.colliderect(rect):
+                collision_x = rect
                 if collision_y: break
-            if not collision_y and rect_y.colliderect(wall.rect):
-                collision_y = wall.rect
+            if not collision_y and rect_y.colliderect(rect):
+                collision_y = rect
                 if collision_x: break
 
         if not collision_x:
@@ -116,11 +117,12 @@ class Player(Entity):
         #rect_y.inflate_ip(-5, 0)
         
         for wall in walls:
-            if not collision_x and rect_x.colliderect(wall.rect):
-                collision_x = wall.rect
+            rect = getattr(wall, "collision_rect", wall.rect)
+            if not collision_x and rect_x.colliderect(rect):
+                collision_x = rect
                 if collision_y: break
-            if not collision_y and rect_y.colliderect(wall.rect):
-                collision_y = wall.rect
+            if not collision_y and rect_y.colliderect(rect):
+                collision_y = rect
                 if collision_x: break
 
         if not collision_x:
