@@ -47,3 +47,4 @@ class Melee:
 
             if abs(angle) <= self.RANGE / 2:
                 target.take_damage(self.DAMAGE)
+

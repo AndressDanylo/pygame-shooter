@@ -144,14 +144,12 @@ class Player(Entity):
 class Enemy(Entity):
     def __init__(self, spawn_position):
         super().__init__(spawn_position, 'assets/Monster.png')
-        self.position = spawn_position # why is this here? what's the point?
     
-    # TODO fix
     def update(self, player, walls, offset):
-        """React if the player is in vision""" #wrong doc
+        """Update enemy logic"""
         result = raycast(self.rect.center, player.rect.center, walls, offset)
         if result["instance"] == player:
-            #self.rotate(self.original_image, self.position, player_position) this is broken
             player_position = Vector2(player.rect.centerx, player.rect.centery)
+            self.rotate(self.original_image, self.rect.center, player_position) 
             self.move(player_position, walls)
 
