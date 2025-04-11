@@ -88,7 +88,8 @@ while running:
     
     screen.blit(player.image, player.rect.topleft + offset)
     for enemy in enemies:
-        if camera.colliderect(enemy.rect):
+        if camera.colliderect(enemy.rect) and enemy.state == "chasing":
+            # render enemy only if it spots the player
             screen.blit(enemy.image, enemy.rect.topleft + offset)
 
     entities = enemies.sprites()

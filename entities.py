@@ -144,11 +144,13 @@ class Player(Entity):
 class Enemy(Entity):
     def __init__(self, spawn_position):
         super().__init__(spawn_position, 'assets/Monster.png')
+        self.state = "idle" # changes to "chasing" when enemy spots player.
     
     def update(self, player, walls, offset):
         """Update enemy logic"""
         result = raycast(self.rect.center, player.rect.center, walls, offset)
         if result["instance"] == player:
+            self.state = "chasing"
             player_position = Vector2(player.rect.centerx, player.rect.centery)
             self.rotate(self.original_image, self.rect.center, player_position) 
             self.move(player_position, walls)
