@@ -3,7 +3,8 @@ from pygame import Vector2
 import math
 import config
 from weapon import Ranged, Melee
-from util import raycast
+from util import raycast, get_magnitude
+
 
 class Entity(pygame.sprite.Sprite):
     def __init__(self, spawn_position, image_path):
@@ -15,6 +16,9 @@ class Entity(pygame.sprite.Sprite):
         self.collision_rect = self.image.get_rect(center = spawn_position)
         # TODO get rid of magic numbers VVVVVVV
         self.collision_rect.inflate_ip(-32, -32)
+
+        self.ranged = Ranged(self)
+        self.melee = Melee(self)
 
         self.health = 10
         self.SPEED = 10
@@ -154,4 +158,6 @@ class Enemy(Entity):
             player_position = Vector2(player.rect.centerx, player.rect.centery)
             self.rotate(self.original_image, self.rect.center, player_position) 
             self.move(player_position, walls)
+            if get_magnitude(self.rect.center, player.rect.center) < 50: # TODO: replace this with a more consistent solution. 
+                self.melee.attack([player]) # player is put in array because Melee.attack only accepts iterable objects. TODO: fix that.
 

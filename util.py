@@ -34,3 +34,7 @@ def normalize_angle(angle):
         while angle < -180:
             angle += 360
         return angle
+
+def get_magnitude(position1: tuple, position2: tuple) -> float:
+    return pygame.math.Vector2(position1).distance_to(position2)
+
