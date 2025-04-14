@@ -38,7 +38,7 @@ class Entity(pygame.sprite.Sprite):
         self.angle = math.atan2(-dy, dx)
 
     def move(self, position: Vector2, walls):
-        """Move entity to a position """ 
+        """Move entity to a position""" 
         self.direction = Vector2(position) - Vector2(self.rect.center)
 
         if self.direction.length() > 0:
@@ -160,4 +160,5 @@ class Enemy(Entity):
             self.move(player_position, walls)
             if get_magnitude(self.rect.center, player.rect.center) < 50: # TODO: replace this with a more consistent solution. 
                 self.melee.attack([player]) # player is put in array because Melee.attack only accepts iterable objects. TODO: fix that.
-
+        else:
+            self.state = "idle"
