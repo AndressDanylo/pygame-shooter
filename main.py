@@ -117,6 +117,19 @@ while running:
     # lighting.vision(vision_surf, player, offset, map.get_collidable_tiles())
     # screen.blit(vision_surf, (0, 0))
 
+    if spawn_monster:
+        position = pygame.mouse.get_pos()
+        position = Vector2(position[0], position[1])
+        position -= offset
+        enemy = Enemy(position)
+        enemies.add(enemy)
+    for enemy in enemies:
+        # TODO: change the onscreen enemies handling
+        if camera.colliderect(enemy.rect):
+            enemy.update(player, map.get_collidable_tiles().sprites() + [player], offset)
+    
+ 
+
     if config.DEBUG:
         pygame.draw.rect(screen, "green", player.collision_rect.move(offset), 1)
         pygame.draw.rect(screen, "green", player.rect.move(offset), 1)
@@ -129,12 +142,6 @@ while running:
         pygame.draw.line(screen, (255, 0, 255), center, center + left_direction * player.melee.REACH, 1)
         pygame.draw.line(screen, (255, 0, 255), center, center + right_direction * player.melee.REACH, 1)
 
-        if spawn_monster:
-            position = pygame.mouse.get_pos()
-            position = Vector2(position[0], position[1])
-            position -= offset
-            enemy = Enemy(position)
-            enemies.add(enemy)
         if spawn_light:
             position = pygame.mouse.get_pos()
             position = Vector2(position[0], position[1])
@@ -144,10 +151,7 @@ while running:
         for enemy in enemies:
             pygame.draw.rect(screen, "red", enemy.rect.move(offset), 1)
             pygame.draw.rect(screen, "red", enemy.collision_rect.move(offset), 1)
-            # TODO: change the onscreen enemies handling
-            if camera.colliderect(enemy.rect):
-                enemy.update(player, map.get_collidable_tiles().sprites() + [player], offset)
-        
+       
         debug_font = pygame.font.Font(None, 50)
         fps_text_surface = debug_font.render(f"FPS: {clock.get_fps() // 1}", True, "green")
         screen.blit(fps_text_surface, (20, 20))
