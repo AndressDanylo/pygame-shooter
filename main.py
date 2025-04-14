@@ -42,6 +42,7 @@ lights.add(light)
 #flashlight = FlashLight(player, map.get_collidable_tiles(), map.get_spawn_position(), 400)
 
 while running:
+    spawn_light = False
     spawn_monster = False
     ranged_attack = False
     melee_attack = False
@@ -60,6 +61,8 @@ while running:
                 melee_attack = True
             elif event.key == pygame.K_z: # debug stuff
                 spawn_monster = True
+            elif event.key == pygame.K_x:
+                spawn_light = True
             elif event.key == pygame.K_m:
                 config.DEBUG = not config.DEBUG
 
@@ -132,6 +135,12 @@ while running:
             position -= offset
             enemy = Enemy(position)
             enemies.add(enemy)
+        if spawn_light:
+            position = pygame.mouse.get_pos()
+            position = Vector2(position[0], position[1])
+            position -= offset
+            light = StaticLight(map.get_collidable_tiles(), position)
+            lights.add(light)
         for enemy in enemies:
             pygame.draw.rect(screen, "red", enemy.rect.move(offset), 1)
             pygame.draw.rect(screen, "red", enemy.collision_rect.move(offset), 1)
@@ -144,7 +153,7 @@ while running:
         screen.blit(fps_text_surface, (20, 20))
 
     font = pygame.font.SysFont('Roboto', 25)
-    text_surf = font.render(f"WASD - Move; M1 - Shoot; Space - Melee; ESC - Leave; M - Debug; Z - Spawn Monster (in debug)", True, "black")
+    text_surf = font.render(f"WASD - Move; M1 - Shoot; Space - Melee; ESC - Leave; M - Debug; Z - Spawn Monster (in debug); X - Spawn Light (in debug)", True, "black")
     text_rect = text_surf.get_rect()
     text_rect.top = 5
     text_rect.right = config.SCREEN_WIDTH - 5
