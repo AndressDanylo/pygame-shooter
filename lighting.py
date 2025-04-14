@@ -62,20 +62,44 @@ class StaticLight(Light):
         self.obstructions_og = obstructions
         self.obstructions = self._get_obstructions(obstructions)
         self.points = self._get_points(self.obstructions)
+
+        self.cached_polygon = None
+        self.cached_light_surface = None
+
+        points = []
+        global_points = []
+        for point in self.points:
+            points.append(point - self.position + (self.rect.width // 2, self.rect.height // 2))
+            global_points.append(point)
+        self._update_light(points)
+
+        if len(global_points) > 2:
+            self.cached_polygon = global_points
+            self.cached_light_surface = self.light_surface.copy()
     
     def update(self, surf, offset):
         if config.DEBUG:
             self._draw_debug(surf, offset, self.points, self.obstructions)
+
+        if self.cached_polygon and self.cached_light_surface:
+            offset_polygon = [p + offset for p in self.cached_polygon]
+            pygame.draw.polygon(surf, (0, 0, 0, 0), offset_polygon)
+            surf.blit(self.cached_light_surface, self.rect.topleft + offset)
+    
+    # def update(self, surf, offset):
+    #     if config.DEBUG:
+    #         self._draw_debug(surf, offset, self.points, self.obstructions)
         
-        points = []
-        global_points = []
-        for point in self.points:
-            points.append(point - self.position + (self.rect.width//2, self.rect.height//2))
-            global_points.append(point + offset)
+    #     points = []
+    #     global_points = []
+    #     for point in self.points:
+    #         points.append(point - self.position + (self.rect.width//2, self.rect.height//2))
+    #         global_points.append(point + offset)
         
-        self._update_light(points)
-        pygame.draw.polygon(surf, (0, 0, 0, 0), global_points)
-        surf.blit(self.light_surface, self.rect.topleft + offset)
+    #     self._update_light(points)
+    #     if len(global_points) > 2:
+    #         pygame.draw.polygon(surf, (0, 0, 0, 0), global_points)
+    #         surf.blit(self.light_surface, self.rect.topleft + offset)
 
 class FlashLight(Light):
     def __init__(self, parent, obstructions, position, radius = 200, color = (255, 255, 200, 55)):

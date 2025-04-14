@@ -31,12 +31,13 @@ lines = []
 map = Map("maps/map1.tmx", enemies)
 player = Player(map.get_spawn_position())
 
-# w, h = screen.get_width(), screen.get_height()
-# for i in range(1, 10):
-#     light = StaticLight(map.get_collidable_tiles(), (random.randint(-w, w), random.randint(-h, h))+map.get_spawn_position())
-#     #lights.add(light)
-# light = StaticLight(map.get_collidable_tiles(), map.get_spawn_position())
-# lights.add(light)
+# random lights (temporary)
+w, h = screen.get_width(), screen.get_height()
+for i in range(1, 10):
+    light = StaticLight(map.get_collidable_tiles(), (random.randint(-w, w), random.randint(-h, h))+map.get_spawn_position())
+    lights.add(light)
+light = StaticLight(map.get_collidable_tiles(), map.get_spawn_position())
+lights.add(light)
 
 #flashlight = FlashLight(player, map.get_collidable_tiles(), map.get_spawn_position(), 400)
 
@@ -97,11 +98,12 @@ while running:
 
     # flashlight.move()
 
-    # lighting_surf = pygame.Surface(screen.get_size(), pygame.SRCALPHA)
-    # lighting_surf.fill((0, 0, 0, 150))
-    # lights.update(lighting_surf, offset)
+    # lighting
+    lighting_surf = pygame.Surface(screen.get_size(), pygame.SRCALPHA)
+    lighting_surf.fill((0, 0, 0, 222))
+    lights.update(lighting_surf, offset)
     # flashlight.update(lighting_surf, offset)
-    # screen.blit(lighting_surf, (0, 0))
+    screen.blit(lighting_surf, (0, 0))
 
     for line in lines:
         pygame.draw.line(screen, (255, 255, 0), line["start"] + offset, line["end"] + offset, 1)
