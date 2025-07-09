@@ -4,6 +4,7 @@ import config
 from pygame.math import Vector2
 from util import raycast, normalize_angle
 from math import radians, sin, cos
+from config import SCREEN_HEIGHT, SCREEN_WIDTH
 
 class Light(pygame.sprite.Sprite):
     def __init__(self, position, radius=200, color=(255, 255, 200, 55)):
@@ -77,14 +78,15 @@ class StaticLight(Light):
             self.cached_polygon = global_points
             self.cached_light_surface = self.light_surface.copy()
     
-    def update(self, surf, offset):
+    def update(self, surf, offset, camera):
         if config.DEBUG:
             self._draw_debug(surf, offset, self.points, self.obstructions)
 
-        if self.cached_polygon and self.cached_light_surface:
-            offset_polygon = [p + offset for p in self.cached_polygon]
-            pygame.draw.polygon(surf, (0, 0, 0, 0), offset_polygon)
-            surf.blit(self.cached_light_surface, self.rect.topleft + offset)
+        if self.rect.colliderect(camera):
+            if self.cached_polygon and self.cached_light_surface:
+                offset_polygon = [p + offset for p in self.cached_polygon]
+                pygame.draw.polygon(surf, (0, 0, 0, 0), offset_polygon)
+                surf.blit(self.cached_light_surface, self.rect.topleft + offset)
     
     # def update(self, surf, offset):
     #     if config.DEBUG:

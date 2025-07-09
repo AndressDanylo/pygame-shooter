@@ -19,7 +19,7 @@ screen_mode = 0 if config.DEBUG else pygame.FULLSCREEN
 screen = pygame.display.set_mode((config.SCREEN_WIDTH, config.SCREEN_HEIGHT), screen_mode)
 camera = screen.get_rect()
 if config.DEBUG:
-    camera.inflate_ip(-64, -64)
+    camera.inflate_ip(-64*2, -64*2)
 
 clock = pygame.time.Clock()
 running = True
@@ -104,7 +104,7 @@ while running:
     # lighting
     lighting_surf = pygame.Surface(screen.get_size(), pygame.SRCALPHA)
     lighting_surf.fill((0, 0, 0, 222))
-    lights.update(lighting_surf, offset)
+    lights.update(lighting_surf, offset, camera)
     # flashlight.update(lighting_surf, offset)
     screen.blit(lighting_surf, (0, 0))
 
