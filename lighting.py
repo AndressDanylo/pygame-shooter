@@ -4,6 +4,7 @@ import config
 from pygame.math import Vector2
 from util import raycast, normalize_angle
 from math import sin, cos
+
 class Light(pygame.sprite.Sprite):
     def __init__(self, position, radius=200, color=(255, 255, 200, 55)):
         super().__init__()
@@ -11,12 +12,14 @@ class Light(pygame.sprite.Sprite):
         self.radius = radius
         self.color = color
 
+        extra_radius = radius * 4
+        self.collision_rect = pygame.Rect(position[0] - extra_radius, position[1] - extra_radius, extra_radius * 2, extra_radius * 2)
         self.rect = pygame.Rect(position[0] - radius, position[1] - radius, radius * 2, radius * 2)
         self.image = pygame.image.load('assets/Light.png').convert_alpha()
         self.image = pygame.transform.scale(self.image, (self.rect.width, self.rect.height))
 
-        self.light_surface = pygame.Surface((self.rect.width, self.rect.height), pygame.SRCALPHA)
-        self.shadow_surface = pygame.Surface((self.rect.width, self.rect.height), pygame.SRCALPHA)
+        self.light_surface = pygame.Surface((self.rect.width, self.rect.height), pygame.SRCALPHA, 32).convert_alpha()
+        self.shadow_surface = pygame.Surface((self.rect.width, self.rect.height), pygame.SRCALPHA, 32).convert_alpha()
 
     def _update_light(self, points):
         self.light_surface.fill((0, 0, 0, 0))
@@ -38,7 +41,7 @@ class Light(pygame.sprite.Sprite):
         result = []
         for object in obstructions:
             # TODO better way of getting obsturctions, cuz rn u still get some excess
-            if self.rect.colliderect(getattr(object, "collision_rect", object.rect)):
+            if self.collision_rect.colliderect(getattr(object, "collision_rect", object.rect)):
                 result.append(object)
         return result
 

@@ -6,7 +6,7 @@ from math import cos, sin
 
 from map import Map
 from entities import Player, Enemy
-from lighting import StaticLight, FlashLight
+from lighting import StaticLight
 
 # pygame setup
 pygame.init()
@@ -102,7 +102,7 @@ while running:
     # flashlight.move()
 
     # lighting
-    lighting_surf = pygame.Surface(screen.get_size(), pygame.SRCALPHA)
+    lighting_surf = pygame.Surface(screen.get_size(), pygame.SRCALPHA, 32).convert_alpha()
     lighting_surf.fill((0, 0, 0, 222))
     lights.update(lighting_surf, offset, camera)
     # flashlight.update(lighting_surf, offset)
