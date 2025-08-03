@@ -3,9 +3,7 @@ import math
 import config
 from pygame.math import Vector2
 from util import raycast, normalize_angle
-from math import radians, sin, cos
-from config import SCREEN_HEIGHT, SCREEN_WIDTH
-
+from math import sin, cos
 class Light(pygame.sprite.Sprite):
     def __init__(self, position, radius=200, color=(255, 255, 200, 55)):
         super().__init__()
@@ -43,7 +41,7 @@ class Light(pygame.sprite.Sprite):
             if self.rect.colliderect(getattr(object, "collision_rect", object.rect)):
                 result.append(object)
         return result
-    
+
     def _get_points(self, obstructions):
         points = []
         for object in obstructions:
